@@ -36,9 +36,9 @@ COPY --from=backend-builder /app/backend /app/backend
 # Install Node.js runtime for backend
 RUN apk add --no-cache nodejs npm
 
-# Expose ports
-EXPOSE 80    # Nginx (frontend)
-EXPOSE 3000  # Node backend
+# Expose ports for Railway
+EXPOSE 80
+EXPOSE 3000
 
-# Start both services
-CMD sh -c "node /app/backend/server.js & nginx -g 'daemon off;'"
+# Start backend and Nginx
+CMD ["sh", "-c", "node /app/backend/server.js & nginx -g 'daemon off;'"]
