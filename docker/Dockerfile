@@ -3,42 +3,32 @@
 # ─────────────────────────────────────────────
 FROM node:18 AS frontend-builder
 
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
+WORKDIR /app
+COPY package*.json ./
 RUN npm install
-COPY frontend/ ./
+COPY . ./
 RUN npm run build
 
 # ─────────────────────────────────────────────
-# Stage 2: Build Backend
-# ─────────────────────────────────────────────
-FROM node:18 AS backend-builder
-
-WORKDIR /app/backend
-COPY backend/package*.json ./
-RUN npm install
-COPY backend/ ./
-
-# ─────────────────────────────────────────────
-# Stage 3: Final Image with Nginx + Node
+# Stage 2: Final Image with Nginx + Node
 # ─────────────────────────────────────────────
 FROM nginx:stable-alpine AS final
 
 # Copy frontend build to Nginx
-COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
+COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 
-# Copy custom Nginx config
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+# Optional: custom Nginx config
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy backend files
-COPY --from=backend-builder /app/backend /app/backend
+COPY . /app
 
-# Install Node.js runtime for backend
+# Install Node.js runtime
 RUN apk add --no-cache nodejs npm
 
-# Expose ports for Railway
+# Expose ports
 EXPOSE 80
 EXPOSE 3000
 
 # Start backend and Nginx
-CMD ["sh", "-c", "node /app/backend/server.js & nginx -g 'daemon off;'"]
+CMD ["sh", "-c", "node /app/server.js & nginx -g 'daemon off;'"]
