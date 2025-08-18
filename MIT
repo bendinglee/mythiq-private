@@ -1,0 +1,20 @@
+
+---
+
+## 📄 `.env.example`
+
+```env
+# Backend
+PORT=3000
+NODE_ENV=development
+
+# AI Providers
+OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# Link Summarizer
+DEFAULT_SUMMARY_PROVIDER=openai
+MAX_SUMMARY_LENGTH=500
+
+# Railway
+RAILWAY_SERVICE_NAME=mythiq-private
