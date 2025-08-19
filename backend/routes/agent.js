@@ -1,5 +1,5 @@
 import express from 'express';
-import skills from '../../skills/index.js';
+import skills from '../../skills/index.js';  // ✅ correct (to repo-root/skills)
 
 const router = express.Router();
 
