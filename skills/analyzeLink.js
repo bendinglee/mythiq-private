@@ -1,15 +1,21 @@
+// skills/linkAnalysis.js
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
 
+/**
+ * Analyzes a URL by fetching its HTML and extracting metadata.
+ * @param {string} url - The URL to analyze.
+ * @returns {Promise<Object>} Metadata including title, description, and og:image.
+ */
 export async function analyzeLink(url) {
   try {
-    const res = await fetch(url);
-    const html = await res.text();
+    const response = await fetch(url);
+    const html = await response.text();
     const $ = cheerio.load(html);
 
-    const title = $('title').text();
-    const description = $('meta[name="description"]').attr('content') || '';
-    const ogImage = $('meta[property="og:image"]').attr('content') || '';
+    const title = $('title').text().trim();
+    const description = $('meta[name="description"]').attr('content')?.trim() || '';
+    const ogImage = $('meta[property="og:image"]').attr('content')?.trim() || '';
 
     return {
       url,
@@ -17,7 +23,7 @@ export async function analyzeLink(url) {
       description,
       ogImage,
     };
-  } catch (err) {
-    return { error: 'Failed to analyze link', details: err.message };
+  } catch (error) {
+    throw new Error(`Failed to analyze link: ${error.message}`);
   }
 }
