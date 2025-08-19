@@ -1,29 +1,33 @@
-// skills/linkAnalysis.js
-import fetch from 'node-fetch';
-import cheerio from 'cheerio';
+import express from 'express';
+import { analyzeLink } from '../../skills/linkAnalysis.js';
+import { generateCode } from '../../skills/codeGen.js';
 
-/**
- * Analyzes a URL by fetching its HTML and extracting metadata.
- * @param {string} url - The URL to analyze.
- * @returns {Promise<Object>} Metadata including title, description, and og:image.
- */
-export async function analyzeLink(url) {
+const router = express.Router();
+
+// POST /analyze — Extract metadata from a URL
+router.post('/analyze', async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'Missing URL' });
+
   try {
-    const response = await fetch(url);
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    const title = $('title').text().trim();
-    const description = $('meta[name="description"]').attr('content')?.trim() || '';
-    const ogImage = $('meta[property="og:image"]').attr('content')?.trim() || '';
-
-    return {
-      url,
-      title,
-      description,
-      ogImage,
-    };
-  } catch (error) {
-    throw new Error(`Failed to analyze link: ${error.message}`);
+    const result = await analyzeLink(url);
+    res.json({ result });
+  } catch (err) {
+    res.status(500).json({ error: 'Analysis failed', details: err.message });
   }
-}
+});
+
+// POST /generate — Generate code from a prompt
+router.post('/generate', async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
+
+  try {
+    const code = await generateCode(prompt);
+    res.json({ code });
+  } catch (err) {
+    res.status(500).json({ error: 'Code generation failed', details: err.message });
+  }
+});
+
+export default router;
